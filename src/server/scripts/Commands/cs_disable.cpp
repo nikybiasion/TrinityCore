@@ -43,7 +43,7 @@ public:
             { "achievement_criteria", SEC_GAMEMASTER, false, &HandleDisableAchievementCriteriaCommand, "", NULL },
             { "outdoorpvp",     SEC_GAMEMASTER,     false, &HandleDisableOutdoorPvPCommand,    "", NULL },
             { "vmap",           SEC_GAMEMASTER,     false, &HandleDisableVmapCommand,          "", NULL },
-            { "mmap,            SEC_GAMEMASTER,     false, &HandleDisableMMapCommand,          "", NULL },
+            { "mmap",           SEC_GAMEMASTER,     false, &HandleDisableMMapCommand,          "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
  
