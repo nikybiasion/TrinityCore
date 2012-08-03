@@ -43,6 +43,7 @@ public:
             { "achievement_criteria", SEC_GAMEMASTER, false, &HandleDisableAchievementCriteriaCommand, "", NULL },
             { "outdoorpvp",     SEC_GAMEMASTER,     false, &HandleDisableOutdoorPvPCommand,    "", NULL },
             { "vmap",           SEC_GAMEMASTER,     false, &HandleDisableVmapCommand,          "", NULL },
+            { "mmap,            SEC_GAMEMASTER,     false, &HandleDisableMMapCommand,          "", NULL },
             { NULL,             0,                  false, NULL,                               "", NULL }
         };
  
@@ -83,8 +84,6 @@ public:
         uint32 entry = (uint32)atoi(cEntry);
         uint8 flags = atoi(cFlags);
  
-       
- 
         std::string disableTypeStr = "";
  
         switch (disableType)
@@ -106,6 +105,9 @@ public:
                 break;
             case DISABLE_TYPE_VMAP:
                 disableTypeStr = "vmap";
+                break;
+            case DISABLE_TYPE_MMAP:
+                disableTypeStr = "mmap";
                 break;
         }
        
@@ -184,6 +186,15 @@ public:
             return false;
        
         HandleDisables(handler, args, DISABLE_TYPE_VMAP);
+        return true;
+    }
+
+    static bool HandleDisableMMapCommand(ChatHandler* handler, char const* args)
+    {
+        if (!*args)
+            return false;
+       
+        HandleDisables(handler, args, DISABLE_TYPE_MMAP);
         return true;
     }
  
