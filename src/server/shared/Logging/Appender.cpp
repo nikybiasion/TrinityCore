@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2008-2012 TrinityCore <http://www.trinitycore.org/>
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "Appender.h"
 #include "Common.h"
 
@@ -14,8 +31,8 @@ std::string LogMessage::getTimeStr()
     return getTimeStr(mtime);
 }
 
-Appender::Appender(uint8 _id, std::string const& _name, AppenderType _type /* = APPENDER_NONE*/, LogLevel _level /* = LOG_LEVEL_DISABLED */):
-id(_id), name(_name), type(_type), level(_level)
+Appender::Appender(uint8 _id, std::string const& _name, AppenderType _type /* = APPENDER_NONE*/, LogLevel _level /* = LOG_LEVEL_DISABLED */, AppenderFlags _flags /* = APPENDER_FLAGS_NONE */):
+id(_id), name(_name), type(_type), level(_level), flags(_flags)
 {
 }
 
@@ -43,6 +60,11 @@ LogLevel Appender::getLogLevel() const
     return level;
 }
 
+AppenderFlags Appender::getFlags() const
+{
+    return flags;
+}
+
 void Appender::setLogLevel(LogLevel _level)
 {
     level = _level;
@@ -50,9 +72,40 @@ void Appender::setLogLevel(LogLevel _level)
 
 void Appender::write(LogMessage& message)
 {
-    if (level && level <= message.level)
-        _write(message);
-    //else fprintf(stderr, "Appender::write: Appender %s, Level %s. Msg %s Level %s Type %s WRONG LEVEL MASK\n", getName().c_str(), getLogLevelString(level), message.text.c_str(), getLogLevelString(message.level), getLogFilterTypeString(message.type)); // DEBUG - RemoveMe
+    if (!level || level > message.level)
+    {
+        //fprintf(stderr, "Appender::write: Appender %s, Level %s. Msg %s Level %s Type %s WRONG LEVEL MASK\n", getName().c_str(), getLogLevelString(level), message.text.c_str(), getLogLevelString(message.level), getLogFilterTypeString(message.type)); // DEBUG - RemoveMe
+        return;
+    }
+
+    message.prefix.clear();
+    if (flags & APPENDER_FLAGS_PREFIX_TIMESTAMP)
+        message.prefix.append(message.getTimeStr().c_str());
+
+    if (flags & APPENDER_FLAGS_PREFIX_LOGLEVEL)
+    {
+        if (!message.prefix.empty())
+            message.prefix.push_back(' ');
+
+        char text[MAX_QUERY_LEN];
+        snprintf(text, MAX_QUERY_LEN, "%-5s", Appender::getLogLevelString(message.level));
+        message.prefix.append(text);
+    }
+
+    if (flags & APPENDER_FLAGS_PREFIX_LOGFILTERTYPE)
+    {
+        if (!message.prefix.empty())
+            message.prefix.push_back(' ');
+
+        char text[MAX_QUERY_LEN];
+        snprintf(text, MAX_QUERY_LEN, "[%-15s]", Appender::getLogFilterTypeString(message.type));
+        message.prefix.append(text);
+    }
+
+    if (!message.prefix.empty())
+        message.prefix.push_back(' ');
+
+    _write(message);
 }
 
 const char* Appender::getLogLevelString(LogLevel level)
@@ -146,6 +199,8 @@ char const* Appender::getLogFilterTypeString(LogFilterType type)
             return "WORLDSERVER";
         case LOG_FILTER_GAMEEVENTS:
             return "GAMEEVENTS";
+        case LOG_FILTER_CALENDAR:
+            return "CALENDAR";
         default:
             break;
     }
