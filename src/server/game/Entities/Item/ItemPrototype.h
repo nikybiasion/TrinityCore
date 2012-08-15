@@ -218,6 +218,12 @@ enum CurrencyFlags
     // ...
 };
 
+enum ItemVendorType
+{
+    ITEM_VENDOR_TYPE_ITEM     = 1,
+    ITEM_VENDOR_TYPE_CURRENCY = 2,
+};
+
 enum BAG_FAMILY_MASK
 {
     BAG_FAMILY_MASK_NONE                      = 0x00000000,
@@ -709,19 +715,6 @@ struct ItemTemplate
     uint32 GetMaxStackSize() const
     {
         return (Stackable == 2147483647 || Stackable <= 0) ? uint32(0x7FFFFFFF-1) : uint32(Stackable);
-    }
-
-    int32 getFeralBonus(int32 extraDPS = 0) const
-    {
-        // 0x02A5F3 - is mask for Melee weapon from ItemSubClassMask.dbc
-        if (Class == ITEM_CLASS_WEAPON && (1 << SubClass) & 0x02A5F3)
-        {
-            int32 bonus = int32((extraDPS + DPS) * 14.0f) - 767;
-            if (bonus < 0)
-                return 0;
-            return bonus;
-        }
-        return 0;
     }
 
     float GetItemLevelIncludingQuality() const

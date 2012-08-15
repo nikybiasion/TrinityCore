@@ -886,14 +886,14 @@ class PlayerTaxi
 
         bool IsTaximaskNodeKnown(uint32 nodeidx) const
         {
-            uint8  field   = uint8((nodeidx - 1) / 32);
-            uint32 submask = 1<<((nodeidx-1)%32);
+            uint8  field   = uint8((nodeidx - 1) / 8);
+            uint32 submask = 1 << ((nodeidx-1) % 8);
             return (m_taximask[field] & submask) == submask;
         }
         bool SetTaximaskNode(uint32 nodeidx)
         {
-            uint8  field   = uint8((nodeidx - 1) / 32);
-            uint32 submask = 1<<((nodeidx-1)%32);
+            uint8  field   = uint8((nodeidx - 1) / 8);
+            uint32 submask = 1 << ((nodeidx-1) % 8);
             if ((m_taximask[field] & submask) != submask)
             {
                 m_taximask[field] |= submask;
@@ -1328,8 +1328,8 @@ class Player : public Unit, public GridObject<Player>
         void SendCurrencies() const;
         uint32 GetCurrency(uint32 id) const;
         bool HasCurrency(uint32 id, uint32 count) const;
-        void SetCurrency(uint32 id, uint32 count);
-        void ModifyCurrency(uint32 id, int32 count);
+        void SetCurrency(uint32 id, uint32 count, bool printLog = true);
+        void ModifyCurrency(uint32 id, int32 count, bool printLog = true);
 
         void ApplyEquipCooldown(Item* pItem);
         void QuickEquipItem(uint16 pos, Item* pItem);
@@ -1375,6 +1375,7 @@ class Player : public Unit, public GridObject<Player>
         }
         void SendNewItem(Item* item, uint32 count, bool received, bool created, bool broadcast = false);
         bool BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot);
+        bool BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uint32 currency, uint32 count);
         bool _StoreOrEquipNewItem(uint32 vendorslot, uint32 item, uint8 count, uint8 bag, uint8 slot, int32 price, ItemTemplate const* pProto, Creature* pVendor, VendorItem const* crItem, bool bStore);
 
         float GetReputationPriceDiscount(Creature const* creature) const;
@@ -1953,7 +1954,6 @@ class Player : public Unit, public GridObject<Player>
         inline void RecalculateRating(CombatRating cr) { ApplyRatingMod(cr, 0, true);}
         float GetMeleeCritFromAgility();
         void GetDodgeFromAgility(float &diminishing, float &nondiminishing);
-        float GetMissPercentageFromDefence() const;
         float GetSpellCritFromIntellect();
         float OCTRegenHPPerSpirit();
         float OCTRegenMPPerSpirit();
@@ -2768,7 +2768,6 @@ class Player : public Unit, public GridObject<Player>
         float m_auraBaseMod[BASEMOD_END][MOD_END];
         int16 m_baseRatingValue[MAX_COMBAT_RATING];
         uint32 m_baseSpellPower;
-        uint32 m_baseFeralAP;
         uint32 m_baseManaRegen;
         uint32 m_baseHealthRegen;
         int32 m_spellPenetrationItemMod;
