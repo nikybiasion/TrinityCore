@@ -19,24 +19,47 @@
 #include "WorldSession.h"
 #include "WorldPacket.h"
 #include "Object.h"
+#include "SharedDefines.h"
 
 void HandleGuildFinderBrowse(WorldPacket & recvData)
 {
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_BROWSE");
 }
 
-void HandleGuildFinderSetGuildPost(WorldPacket & recvData) {}
+void HandleGuildFinderSetGuildPost(WorldPacket & recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_SET_GUILD_POST");
+}
 
-void HandleGuildFinderPostUpdated(WorldPacket & recvData) {}
+void HandleGuildFinderPostUpdated(WorldPacket & recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received SMSG_LF_GUILD_POST_UPDATED");
+}
 
-void HandleGuildFinderCommandResult(WorldPacket & recvData) {}
+void HandleGuildFinderCommandResult(WorldPacket & recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received SMSG_LF_GUILD_COMMAND_RESULT");
+}
 
-void HandlerLFGuildBrowseUpdated(WorldPacket & recvData) {}
+void HandlerLFGuildBrowseUpdated(WorldPacket & recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received SMSG_LF_GUILD_BROWSE_UPDATED");
+}
 
-void HandlerLFGuildGetRecruits(WorldPacket & recvData) {}
+void HandlerLFGuildGetRecruits(WorldPacket & recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_GET_RECRUITS");
+}
 
-void HandleLFGuildRecruitListUpdated(WorldPacket & recvData) {}
+void HandleLFGuildRecruitListUpdated(WorldPacket & recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received SMSG_LF_GUILD_RECRUIT_LIST_UPDATED");
+}
 
-void HandleLFGuildMembershipListUpdated(WorldPacket & recvData) {}
+void HandleLFGuildMembershipListUpdated(WorldPacket & recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received SMSG_LF_GUILD_MEMBERSHIP_LIST_UPDATED");
+}
 
 void HandleLFGuildDeclineRecruit(WorldPacket & recvData)
 {
