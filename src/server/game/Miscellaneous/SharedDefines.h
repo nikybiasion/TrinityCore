@@ -3746,4 +3746,33 @@ enum VoidTransferError
     VOID_TRANSFER_ERROR_TRANSFER_UNKNOWN  = 9,
 };
 
+
+enum GuildFinderOptionsInterest
+{
+    GF_QUESTING     = 0x01,
+    GF_DUNGEONS     = 0x02,
+    GF_RAIDS        = 0x04,
+    GF_PVP          = 0x08,
+    GF_ROLE_PLAYING = 0x10,
+};
+
+enum GuildFinderOptionsAvailability
+{
+    GF_WEEKDAYS = 0x1,
+    GF_WEEKENDS = 0x2,
+};
+
+enum GuildFinderOptionsRoles
+{
+    GF_TANK   = 0x1,
+    GF_HEALER = 0x2,
+    GF_OPS    = 0x4,
+};
+
+enum GuildFinderOptionsLevel
+{
+    GF_ANY = 1,
+    GF_MAX = 2,
+};
+
 #endif
