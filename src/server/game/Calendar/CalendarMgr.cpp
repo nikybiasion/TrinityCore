@@ -149,7 +149,7 @@ void CalendarMgr::LoadFromDB()
         }
         while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_CALENDAR, ">> Loaded %u calendar events", count);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u calendar events", count);
     count = 0;
 
     //                                                       0   1      2        3       4       5           6     7
@@ -176,7 +176,7 @@ void CalendarMgr::LoadFromDB()
         }
         while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_CALENDAR, ">> Loaded %u calendar Invites", count);
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u calendar Invites", count);
     */
 }
 

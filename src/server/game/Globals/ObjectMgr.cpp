@@ -8644,7 +8644,7 @@ void ObjectMgr::LoadHotfixData()
     }
     while (result->NextRow());
 
-    sLog->outInfo(LOG_FILTER_GENERAL, ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
+    sLog->outInfo(LOG_FILTER_SERVER_LOADING, ">> Loaded %u hotfix info entries in %u ms", count, GetMSTimeDiffToNow(oldMSTime));
 }
 
 GameObjectTemplate const* ObjectMgr::GetGameObjectTemplate(uint32 entry)
