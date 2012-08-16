@@ -583,6 +583,18 @@ class WorldSession
         void HandleSaveGuildEmblemOpcode(WorldPacket& recvPacket);
         void HandleGuildRequestPartyState(WorldPacket& recvPacket);
 
+        // GuildFinder
+        void HandleGuildFinderBrowse(WorldPacket & recvData);
+        void HandleGuildFinderSetGuildPost(WorldPacket & recvData);
+        void HandleGuildFinderPostUpdated(WorldPacket & recvData);
+        void HandleGuildFinderCommandResult(WorldPacket & recvData);
+        void HandlerLFGuildBrowseUpdated(WorldPacket & recvData);
+        void HandlerLFGuildGetRecruits(WorldPacket & recvData);
+        void HandleLFGuildRecruitListUpdated(WorldPacket & recvData);
+        void HandleLFGuildMembershipListUpdated(WorldPacket & recvData);
+        void HandleLFGuildDeclineRecruit(WorldPacket & recvData);
+        void HandleLFGuildRemoveRecruit(WorldPacket & recvData);
+
         void HandleTaxiNodeStatusQueryOpcode(WorldPacket& recvPacket);
         void HandleTaxiQueryAvailableNodes(WorldPacket& recvPacket);
         void HandleActivateTaxiOpcode(WorldPacket& recvPacket);

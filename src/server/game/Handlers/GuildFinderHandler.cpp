@@ -16,6 +16,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "WorldSession.h"
 #include "WorldPacket.h"
 #include "Object.h"
 
@@ -62,4 +63,27 @@ void HandleLFGuildDeclineRecruit(WorldPacket & recvData)
     recvData.ReadByteSeq(playerGuid[6]);
 }
 
-void HandleLFGuildRemoveRecruit(WorldPacket & recvData) {}
+void HandleLFGuildRemoveRecruit(WorldPacket & recvData)
+{
+    sLog->outDebug(LOG_FILTER_NETWORKIO, "WORLD: Received CMSG_LF_GUILD_REMOVE_RECRUIT");
+
+    ObjectGuid playerGuid;
+
+    playerGuid[0] = recvData.ReadBit(); 
+    playerGuid[4] = recvData.ReadBit();
+    playerGuid[3] = recvData.ReadBit();
+    playerGuid[5] = recvData.ReadBit();
+    playerGuid[7] = recvData.ReadBit();
+    playerGuid[6] = recvData.ReadBit();
+    playerGuid[2] = recvData.ReadBit();
+    playerGuid[1] = recvData.ReadBit();
+
+    recvData.ReadByteSeq(playerGuid[4]);
+    recvData.ReadByteSeq(playerGuid[0]);
+    recvData.ReadByteSeq(playerGuid[3]);
+    recvData.ReadByteSeq(playerGuid[6]);
+    recvData.ReadByteSeq(playerGuid[5]);
+    recvData.ReadByteSeq(playerGuid[1]);
+    recvData.ReadByteSeq(playerGuid[2]);
+    recvData.ReadByteSeq(playerGuid[7]);
+}
