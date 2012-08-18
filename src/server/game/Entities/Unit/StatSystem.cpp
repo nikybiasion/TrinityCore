@@ -90,23 +90,11 @@ bool Player::UpdateStats(Stats stat)
     }
 
     if (stat == STAT_STRENGTH)
-    {
         UpdateAttackPowerAndDamage(false);
-        if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT, stat))
-            UpdateAttackPowerAndDamage(true);
-    }
     else if (stat == STAT_AGILITY)
     {
         UpdateAttackPowerAndDamage(false);
         UpdateAttackPowerAndDamage(true);
-    }
-    else
-    {
-        // Need update (exist AP from stat auras)
-        if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT, stat))
-            UpdateAttackPowerAndDamage(false);
-        if (HasAuraTypeWithMiscvalue(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT, stat))
-            UpdateAttackPowerAndDamage(true);
     }
 
     UpdateSpellDamageAndHealingBonus();
@@ -201,7 +189,6 @@ void Player::UpdateArmor()
 
     value  = GetModifierValue(unitMod, BASE_VALUE);         // base armor (from items)
     value *= GetModifierValue(unitMod, BASE_PCT);           // armor percent from items
-    value += GetStat(STAT_AGILITY) * 2.0f;                  // armor bonus from stats
     value += GetModifierValue(unitMod, TOTAL_VALUE);
 
     //add dynamic flat mods
@@ -225,22 +212,25 @@ void Player::UpdateArmor()
 
 float Player::GetHealthBonusFromStamina()
 {
-    float stamina = GetStat(STAT_STAMINA);
+    // Taken from PaperDollFrame.lua - 4.3.4.15595
+    gtOCTHpPerStaminaEntry const* hpBase = sGtOCTHpPerStaminaStore.LookupEntry((getClass() - 1) * GT_MAX_LEVEL + getLevel() - 1);
 
-    float baseStam = stamina < 20 ? stamina : 20;
+    float stamina = GetStat(STAT_STAMINA);
+    float baseStam = std::min(20.0f, stamina);
     float moreStam = stamina - baseStam;
 
-    return baseStam + (moreStam*10.0f);
+    return baseStam + moreStam * hpBase->ratio;
 }
 
 float Player::GetManaBonusFromIntellect()
 {
+    // Taken from PaperDollFrame.lua - 4.3.4.15595
     float intellect = GetStat(STAT_INTELLECT);
 
-    float baseInt = intellect < 20 ? intellect : 20;
+    float baseInt = std::min(20.0f, intellect);
     float moreInt = intellect - baseInt;
 
-    return baseInt + (moreInt*15.0f);
+    return baseInt + (moreInt * 15.0f);
 }
 
 void Player::UpdateMaxHealth()
@@ -274,6 +264,7 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float val2 = 0.0f;
     float level = float(getLevel());
 
+    ChrClassesEntry const* entry = sChrClassesStore.LookupEntry(getClass());
     UnitMods unitMod = ranged ? UNIT_MOD_ATTACK_POWER_RANGED : UNIT_MOD_ATTACK_POWER;
 
     uint16 index = UNIT_FIELD_ATTACK_POWER;
@@ -297,53 +288,15 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     }
     else
     {
-        switch (getClass())
-        {
-            case CLASS_WARRIOR:
-                val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
-                break;
-            case CLASS_PALADIN:
-                val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
-                break;
-            case CLASS_DEATH_KNIGHT:
-                val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
-                break;
-            case CLASS_ROGUE:
-                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) * 2.0f - 30.0f;
-                break;
-            case CLASS_HUNTER:
-                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) - 20.0f;
-                break;
-            case CLASS_SHAMAN:
-                val2 = level * 2.0f + GetStat(STAT_STRENGTH) + GetStat(STAT_AGILITY) * 2.0f - 30.0f;
-                break;
-            case CLASS_DRUID:
-            {
-                switch (GetShapeshiftForm())
-                {
-                    case FORM_CAT:
-                        val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) * 2.0f - 40.0f;
-                        break;
-                    case FORM_BEAR:
-                    case FORM_DIREBEAR:
-                        val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f + GetStat(STAT_AGILITY) * 2.0f - 40.0f;
-                        break;
-                    default:
-                        val2 = level * 3.0f + GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
-                        break;
-                }
-                break;
-            }
-            case CLASS_MAGE:
-                val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
-                break;
-            case CLASS_PRIEST:
-                val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
-                break;
-            case CLASS_WARLOCK:
-                val2 = GetStat(STAT_STRENGTH) * 2.0f - 20.0f;
-                break;
-        }
+        float strengthValue = std::max((GetStat(STAT_STRENGTH) - 10.0f) * entry->APPerStrenth, 0.0f);
+        float agilityValue = std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerAgility, 0.0f);
+
+        SpellShapeshiftFormEntry const* form = sSpellShapeshiftFormStore.LookupEntry(GetShapeshiftForm());
+        // Directly taken from client, SHAPESHIFT_FLAG_AP_FROM_STRENGTH ?
+        if (form && form->flags1 & 0x20)
+            agilityValue += std::max((GetStat(STAT_AGILITY) - 10.0f) * entry->APPerStrenth, 0.0f);
+
+        val2 = strengthValue + agilityValue;
     }
 
     SetModifierValue(unitMod, BASE_VALUE, val2);
@@ -352,21 +305,8 @@ void Player::UpdateAttackPowerAndDamage(bool ranged)
     float attPowerMod = GetModifierValue(unitMod, TOTAL_VALUE);
 
     //add dynamic flat mods
-    if (ranged)
+    if (!ranged)
     {
-        if ((getClassMask() & CLASSMASK_WAND_USERS) == 0)
-        {
-            AuraEffectList const& mRAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_RANGED_ATTACK_POWER_OF_STAT_PERCENT);
-            for (AuraEffectList::const_iterator i = mRAPbyStat.begin(); i != mRAPbyStat.end(); ++i)
-                attPowerMod += CalculatePctN(GetStat(Stats((*i)->GetMiscValue())), (*i)->GetAmount());
-        }
-    }
-    else
-    {
-        AuraEffectList const& mAPbyStat = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_STAT_PERCENT);
-        for (AuraEffectList::const_iterator i = mAPbyStat.begin(); i != mAPbyStat.end(); ++i)
-            attPowerMod += CalculatePctN(GetStat(Stats((*i)->GetMiscValue())), (*i)->GetAmount());
-
         AuraEffectList const& mAPbyArmor = GetAuraEffectsByType(SPELL_AURA_MOD_ATTACK_POWER_OF_ARMOR);
         for (AuraEffectList::const_iterator iter = mAPbyArmor.begin(); iter != mAPbyArmor.end(); ++iter)
             // always: ((*i)->GetModifier()->m_miscvalue == 1 == SPELL_SCHOOL_MASK_NORMAL)
@@ -745,9 +685,8 @@ void Player::ApplyHealthRegenBonus(int32 amount, bool apply)
 
 void Player::UpdateManaRegen()
 {
-    float Intellect = GetStat(STAT_INTELLECT);
-    // Mana regen from spirit and intellect
-    float power_regen = sqrt(Intellect) * OCTRegenMPPerSpirit();
+    // Mana regen from spirit
+    float power_regen = OCTRegenMPPerSpirit();
     // Apply PCT bonus from SPELL_AURA_MOD_POWER_REGEN_PERCENT aura on spirit base regen
     power_regen *= GetTotalAuraMultiplierByMiscValue(SPELL_AURA_MOD_POWER_REGEN_PERCENT, POWER_MANA);
 

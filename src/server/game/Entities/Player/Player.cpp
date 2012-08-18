@@ -5820,13 +5820,13 @@ float Player::GetSpellCritFromIntellect()
     if (level > GT_MAX_LEVEL)
         level = GT_MAX_LEVEL;
 
-    GtChanceToSpellCritBaseEntry const* critBase  = sGtChanceToSpellCritBaseStore.LookupEntry(pclass-1);
-    GtChanceToSpellCritEntry     const* critRatio = sGtChanceToSpellCritStore.LookupEntry((pclass-1)*GT_MAX_LEVEL + level-1);
+    GtChanceToSpellCritBaseEntry const* critBase = sGtChanceToSpellCritBaseStore.LookupEntry(pclass - 1);
+    GtChanceToSpellCritEntry const* critRatio = sGtChanceToSpellCritStore.LookupEntry((pclass - 1) * GT_MAX_LEVEL + level - 1);
     if (critBase == NULL || critRatio == NULL)
         return 0.0f;
 
-    float crit=critBase->base + GetStat(STAT_INTELLECT)*critRatio->ratio;
-    return crit*100.0f;
+    float crit = critBase->base + GetStat(STAT_INTELLECT) * critRatio->ratio;
+    return crit * 100.0f;
 }
 
 float Player::GetRatingMultiplier(CombatRating cr) const
@@ -21102,12 +21102,32 @@ bool Player::BuyCurrencyFromVendorSlot(uint64 vendorGuid, uint32 vendorSlot, uin
             return false;
         }
 
-        // item base price
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
             if (iece->RequiredItem[i] && !HasItemCount(iece->RequiredItem[i], (iece->RequiredItemCount[i] * count)))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
+                return false;
+            }
+        }
+
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        {
+            if (!iece->RequiredCurrency[i])
+                continue;
+
+            CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
+            if (!entry)
+            {
+                SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, currency, 0); // Find correct error
+                return false;
+            }
+
+            uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
+
+            if (HasCurrency(iece->RequiredCurrency[i], (iece->RequiredCurrencyCount[i] * count) / precision))
+            {
+                SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // Find correct error
                 return false;
             }
         }
@@ -21205,12 +21225,32 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
             return false;
         }
 
-        // item base price
-        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_ITEMS; ++i)
         {
             if (iece->RequiredItem[i] && !HasItemCount(iece->RequiredItem[i], (iece->RequiredItemCount[i] * count)))
             {
                 SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL);
+                return false;
+            }
+        }
+
+        for (uint8 i = 0; i < MAX_ITEM_EXT_COST_CURRENCIES; ++i)
+        {
+            if (!iece->RequiredCurrency[i])
+                continue;
+
+            CurrencyTypesEntry const* entry = sCurrencyTypesStore.LookupEntry(iece->RequiredCurrency[i]);
+            if (!entry)
+            {
+                SendBuyError(BUY_ERR_CANT_FIND_ITEM, creature, item, 0);
+                return false;
+            }
+
+            uint32 precision = (entry->Flags & CURRENCY_FLAG_HIGH_PRECISION) ? 100 : 1;
+
+            if (HasCurrency(iece->RequiredCurrency[i], (iece->RequiredCurrencyCount[i] * count) / precision))
+            {
+                SendEquipError(EQUIP_ERR_VENDOR_MISSING_TURNINS, NULL, NULL); // error not verified for currencies
                 return false;
             }
         }
@@ -25073,7 +25113,7 @@ void Player::_LoadGlyphs(PreparedQueryResult result)
         if (spec >= GetSpecsCount())
             continue;
 
-        for (uint8 i = 0; i < 6; ++i)
+        for (uint8 i = 0; i < MAX_GLYPH_SLOT_INDEX; ++i)
             _talentMgr->SpecInfo[spec].Glyphs[i] = fields[i + 1].GetUInt16();
     }
     while (result->NextRow());

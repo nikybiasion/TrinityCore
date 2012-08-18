@@ -39,7 +39,7 @@ const char CharStartOutfitEntryfmt[]="diiiiiiiiiiiiiiiiiiiiiiiiixxxxxxxxxxxxxxxx
 const char CharTitlesEntryfmt[]="nxsxix";
 const char ChatChannelsEntryfmt[]="nixsx";
 
-const char ChrClassesEntryfmt[]="nixsxxxixiixxx";
+const char ChrClassesEntryfmt[]="nixsxxxixiiiix";
 const char ChrRacesEntryfmt[]="nxixiixixxxxixsxxxxxixxx";
 const char ChrClassesXPowerTypesfmt[]="nii";
 
@@ -67,7 +67,7 @@ const char GlyphSlotfmt[]="nii";
 
 const char GtBarberShopCostBasefmt[]="xf";
 const char GtCombatRatingsfmt[]="xf";
-const char GtOCTHpPerStaminafmt[]="xf";
+const char GtOCTHpPerStaminafmt[]="df";
 const char GtChanceToMeleeCritBasefmt[]="xf";
 const char GtChanceToMeleeCritfmt[]="xf";
 const char GtChanceToSpellCritBasefmt[]="xf";
