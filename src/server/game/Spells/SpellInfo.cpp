@@ -1341,6 +1341,7 @@ bool SpellInfo::IsAuraExclusiveBySpecificPerCasterWith(SpellInfo const* spellInf
         case SPELL_SPECIFIC_AURA:
         case SPELL_SPECIFIC_STING:
         case SPELL_SPECIFIC_CURSE:
+        case SPELL_SPECIFIC_BANE:
         case SPELL_SPECIFIC_ASPECT:
         case SPELL_SPECIFIC_JUDGEMENT:
         case SPELL_SPECIFIC_WARLOCK_CORRUPTION:
@@ -1949,6 +1950,10 @@ SpellSpecificType SpellInfo::GetSpellSpecific() const
         }
         case SPELLFAMILY_WARLOCK:
         {
+            // Warlock (Bane of Doom | Bane of Agony | Bane of Havoc)
+            if (Id == 603 || Id ==  980 || Id == 80240)
+                return SPELL_SPECIFIC_BANE;
+
             // only warlock curses have this
             if (Dispel == DISPEL_CURSE)
                 return SPELL_SPECIFIC_CURSE;
