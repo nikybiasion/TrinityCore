@@ -45,7 +45,6 @@ public:
             { "loc",            SEC_GAMEMASTER,     false, &HandleMmapLocCommand,             "", NULL },
             { "loadedtiles",    SEC_GAMEMASTER,     false, &HandleMmapLoadedTilesCommand,     "", NULL },
             { "stats",          SEC_GAMEMASTER,     false, &HandleMmapStatsCommand,           "", NULL },
-            { "toggle",         SEC_ADMINISTRATOR,  false, &HandleMmapToggle,                 "", NULL },
             { "testarea",       SEC_GAMEMASTER,     false, &HandleMmapTestArea,               "", NULL },
             { NULL,             0,                  false, NULL,                              "", NULL }
         };
@@ -244,24 +243,32 @@ public:
         return true;
     }
 
-    static bool HandleMmapToggle(ChatHandler* handler, const char* args) 
+    static bool HandleMmap(ChatHandler* handler, const char* args) 
     {
         uint32 mapId = handler->GetSession()->GetPlayer()->GetMapId();
-        bool newState = !MMAP::MMapFactory::IsPathfindingEnabled(mapId); 
-        MMAP::MMapFactory::IsPathfindingEnabled(mapId), newState; 
  
-        if (newState) 
-            handler->SendSysMessage("mmaps are now ENABLED (individual map settings still in effect)"); 
-        else 
-            handler->SendSysMessage("mmaps are now DISABLED"); 
- 
+        std::string param = (char*)args;
+        if (param == "on")
+        {
+            MMAP::MMapFactory::IsPathfindingEnabled(mapId), true;
+            handler->SendSysMessage("mmaps are now ENABLED (individual map settings still in effect)");
+        }
+
+        if (param == "off")
+        {
+            MMAP::MMapFactory::IsPathfindingEnabled(mapId), false;
+            handler->SendSysMessage("mmaps are now DISABLED");
+        }
+        
+        handler->PSendSysMessage("mmaps are %sabled", MMAP::MMapFactory::IsPathfindingEnabled(mapId) ? "en" : "dis");
+
         return true; 
     }
 
     static bool HandleMmapTestArea(ChatHandler* handler, const char* args)
     {
         float radius = 40.0f;
-        WorldObject const* object;
+        WorldObject* object;
 
         CellCoord pair(Trinity::ComputeCellCoord(handler->GetSession()->GetPlayer()->GetPositionX(), handler->GetSession()->GetPlayer()->GetPositionY()) );
         Cell cell(pair);
