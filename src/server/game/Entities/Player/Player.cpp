@@ -3146,7 +3146,7 @@ void Player::GiveLevel(uint8 level)
     SetFullHealth();
     SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
     SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
-    if ((uint32)GetPower(POWER_RAGE) > GetMaxPower(POWER_RAGE))
+    if (GetPower(POWER_RAGE) > GetMaxPower(POWER_RAGE))
         SetPower(POWER_RAGE, GetMaxPower(POWER_RAGE));
     SetPower(POWER_FOCUS, 0);
 
@@ -3373,7 +3373,7 @@ void Player::InitStatsForLevel(bool reapplyMods)
     SetFullHealth();
     SetPower(POWER_MANA, GetMaxPower(POWER_MANA));
     SetPower(POWER_ENERGY, GetMaxPower(POWER_ENERGY));
-    if ((uint32)GetPower(POWER_RAGE) > GetMaxPower(POWER_RAGE))
+    if (GetPower(POWER_RAGE) > GetMaxPower(POWER_RAGE))
         SetPower(POWER_RAGE, GetMaxPower(POWER_RAGE));
     SetPower(POWER_FOCUS, GetMaxPower(POWER_FOCUS));
     SetPower(POWER_RUNIC_POWER, 0);
@@ -20916,7 +20916,6 @@ void Player::InitDataForForm(bool reapplyMods)
             break;
         }
         case FORM_BEAR:
-        case FORM_DIREBEAR:
         {
             if (getPowerType() != POWER_RAGE)
                 setPowerType(POWER_RAGE);
@@ -25081,7 +25080,7 @@ void Player::SetMap(Map* map)
 
 void Player::_LoadGlyphs(PreparedQueryResult result)
 {
-    // SELECT spec, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6 from character_glyphs WHERE guid = '%u'
+    // SELECT spec, glyph1, glyph2, glyph3, glyph4, glyph5, glyph6, glyph7, glyph8, glyph9 FROM character_glyphs WHERE guid = '%u'
     if (!result)
         return;
 
