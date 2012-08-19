@@ -54,7 +54,10 @@ void TargetedMovementGeneratorMedium<T,D>::SetTargetLocation(T &owner)
         if (dist < 0.5f)
             dist = 0.5f;
 
-        _target->GetContactPoint(&owner, x, y, z, dist);
+        if (owner.IsWithinLOSInMap(owner.getVictim()))
+           _target->GetContactPoint(&owner, x, y, z, dist);
+        else
+           _target->GetPosition(x, y, z);
     }
     else
     {
@@ -211,7 +214,7 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
         else
             _targetSearchingTimer = 0;
 
-        if (targetMoved)
+        if (targetMoved || !owner.IsWithinLOSInMap(owner.getVictim()))
             SetTargetLocation(owner);
     }
 
