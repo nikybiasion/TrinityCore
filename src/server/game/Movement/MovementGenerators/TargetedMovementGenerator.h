@@ -28,11 +28,11 @@
 class TargetedMovementGeneratorBase
 {
     public:
-        TargetedMovementGeneratorBase(Unit &target) { _target.link(&target, this); }
+        TargetedMovementGeneratorBase(Unit &target) { Target.link(&target, this); }
         void StopFollowing() { }
 
     protected:
-        FollowerReference _target;
+        FollowerReference Target;
 };
 
 template<class T, typename D>
@@ -48,10 +48,10 @@ class TargetedMovementGeneratorMedium : public MovementGeneratorMedium< T, D >, 
         ~TargetedMovementGeneratorMedium() { delete _path; }
 
     public:
-        bool Update(T &, const uint32 &);
-        Unit* GetTarget() const { return _target.getTarget(); }
+        bool Update(T &, uint32 const&);
+        Unit* GetTarget() const { return Target.getTarget(); }
 
-        void UnitSpeedChanged() { _recalculateTravel=true; }
+        void UnitSpeedChanged() { _recalculateTravel = true; }
         void UpdateFinalDistance(float fDistance);
         bool IsReachable() const { return (_path) ? (_path->GetPathType() & PATHFIND_NORMAL) : true; }
         void SetTargetLocation(T &);
@@ -83,8 +83,6 @@ class ChaseMovementGenerator : public TargetedMovementGeneratorMedium<T, ChaseMo
         void Reset(T &);
         void MovementInform(T &);
 
-        static void _clearUnitStateMove(T &u) { u.ClearUnitState(UNIT_STATE_CHASE_MOVE); }
-        static void _addUnitStateMove(T &u)  { u.AddUnitState(UNIT_STATE_CHASE_MOVE); }
         bool EnableWalking() const { return false;}
         bool LostTarget(T &u) const { return u.getVictim() != this->GetTarget(); }
         void ReachTarget(T &);
