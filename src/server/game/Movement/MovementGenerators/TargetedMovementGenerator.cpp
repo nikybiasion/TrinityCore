@@ -134,8 +134,11 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
         return true;
     }
 
+    if (owner.GetTypeId() == TYPEID_UNIT && !_target->isInAccessiblePlaceFor((Creature*)(&owner)))
+        return false;
+
     // prevent movement while casting spells with cast time or channel time
-    if (owner.HasUnitState(UNIT_STATE_CASTING))
+    if (owner.IsNonMeleeSpellCasted(false, false,  true))
     {
         if (!owner.IsStopped())
         {
@@ -184,7 +187,7 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
             allowed_dist = owner.GetObjectSize();
 
         bool targetMoved = false;
-        if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)&owner)->IsFlying())
+        if (owner.GetTypeId() == TYPEID_UNIT && ((Creature*)(&owner))->CanFly())
             targetMoved = !_target->IsWithinDist3d(dest.x, dest.y, dest.z, allowed_dist);
         else
             targetMoved = !_target->IsWithinDist2d(dest.x, dest.y, allowed_dist);
