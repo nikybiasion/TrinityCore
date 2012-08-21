@@ -41,18 +41,19 @@ public:
     {
         static ChatCommand mmapCommandTable[] =
         {
-            { "path",           SEC_GAMEMASTER,     false, &HandleMmapPathCommand,            "", NULL },
-            { "loc",            SEC_GAMEMASTER,     false, &HandleMmapLocCommand,             "", NULL },
-            { "loadedtiles",    SEC_GAMEMASTER,     false, &HandleMmapLoadedTilesCommand,     "", NULL },
-            { "stats",          SEC_GAMEMASTER,     false, &HandleMmapStatsCommand,           "", NULL },
-            { "testarea",       SEC_GAMEMASTER,     false, &HandleMmapTestArea,               "", NULL },
-            { NULL,             0,                  false, NULL,                              "", NULL }
+            { "path",           SEC_ADMINISTRATOR,     false, &HandleMmapPathCommand,            "", NULL },
+            { "loc",            SEC_ADMINISTRATOR,     false, &HandleMmapLocCommand,             "", NULL },
+            { "loadedtiles",    SEC_ADMINISTRATOR,     false, &HandleMmapLoadedTilesCommand,     "", NULL },
+            { "stats",          SEC_ADMINISTRATOR,     false, &HandleMmapStatsCommand,           "", NULL },
+            { "testarea",       SEC_ADMINISTRATOR,     false, &HandleMmapTestArea,               "", NULL },
+            { "toggle",         SEC_ADMINISTRATOR,     false, &HandleMmap,                       "", NULL },
+            { NULL,             0,                     false, NULL,                              "", NULL }
         };
 
         static ChatCommand commandTable[] =
         {
-            { "mmap",           SEC_GAMEMASTER,         true,  NULL,     "", mmapCommandTable  },
-            { NULL,             SEC_GAMEMASTER,         false, NULL,                     "", NULL }
+            { "mmap",           SEC_ADMINISTRATOR,     true,  NULL,                 "", mmapCommandTable  },
+            { NULL,             0,                     false, NULL,                              "", NULL }
         };
         return commandTable;
     }
@@ -268,20 +269,20 @@ public:
     static bool HandleMmapTestArea(ChatHandler* handler, const char* args)
     {
         float radius = 40.0f;
-        WorldObject* object;
+        WorldObject* object = handler->GetSession()->GetPlayer();
 
-        CellCoord pair(Trinity::ComputeCellCoord(handler->GetSession()->GetPlayer()->GetPositionX(), handler->GetSession()->GetPlayer()->GetPositionY()) );
+        CellCoord pair(Trinity::ComputeCellCoord(object->GetPositionX(), object->GetPositionY()) );
         Cell cell(pair);
         cell.SetNoCreate();
         
         std::list<Creature*> creatureList;
 
-        Trinity::AnyUnitInObjectRangeCheck go_check(handler->GetSession()->GetPlayer(), radius);
+        Trinity::AnyUnitInObjectRangeCheck go_check(object, radius);
         Trinity::CreatureListSearcher<Trinity::AnyUnitInObjectRangeCheck> go_search(object, creatureList, go_check);
         TypeContainerVisitor<Trinity::CreatureListSearcher<Trinity::AnyUnitInObjectRangeCheck>, GridTypeMapContainer> go_visit(go_search);
 
         // Get Creatures
-        cell.Visit(pair, go_visit, *(handler->GetSession()->GetPlayer()->GetMap()), *(handler->GetSession()->GetPlayer()), radius);
+        cell.Visit(pair, go_visit, *(object->GetMap()), *object, radius);
 
         if (!creatureList.empty())
         {
@@ -291,7 +292,7 @@ public:
             uint32 uStartTime = getMSTime();
 
             float gx, gy, gz;
-            handler->GetSession()->GetPlayer()->GetPosition(gx, gy, gz);
+            object->GetPosition(gx, gy, gz);
             for (std::list<Creature*>::iterator itr = creatureList.begin(); itr != creatureList.end(); ++itr)
             {
                 PathFinderMovementGenerator path(*itr);
