@@ -133,12 +133,12 @@ dtPolyRef PathFinderMovementGenerator::GetPathPolyByPosition(dtPolyRef const* po
     return (minDist2d < 3.0f) ? nearestPoly : INVALID_POLYREF;
 }
 
-dtPolyRef PathFinderMovementGenerator::GetPolyByLocation(float const* Point, float* Distance) const
+dtPolyRef PathFinderMovementGenerator::GetPolyByLocation(float const* point, float* distance) const
 {
     // first we check the current path
     // if the current path doesn't contain the current poly,
     // we need to use the expensive navMesh.findNearestPoly
-    dtPolyRef polyRef = GetPathPolyByPosition(_pathPolyRefs, _polyLength, Point, Distance);
+    dtPolyRef polyRef = GetPathPolyByPosition(_pathPolyRefs, _polyLength, point, distance);
     if (polyRef != INVALID_POLYREF)
         return polyRef;
 
@@ -147,20 +147,20 @@ dtPolyRef PathFinderMovementGenerator::GetPolyByLocation(float const* Point, flo
     // first try with low search box
     float extents[VERTEX_SIZE] = {3.0f, 5.0f, 3.0f};    // bounds of poly search area
     float closestPoint[VERTEX_SIZE] = {0.0f, 0.0f, 0.0f};
-    dtStatus result = _navMeshQuery->findNearestPoly(Point, extents, &_filter, &polyRef, closestPoint);
+    dtStatus result = _navMeshQuery->findNearestPoly(point, extents, &_filter, &polyRef, closestPoint);
     if (DT_SUCCESS == result && polyRef != INVALID_POLYREF)
     {
-        *Distance = dtVdist(closestPoint, Point);
+        *distance = dtVdist(closestPoint, point);
         return polyRef;
     }
 
     // still nothing ..
     // try with bigger search box
     extents[1] = 200.0f;
-    result = _navMeshQuery->findNearestPoly(Point, extents, &_filter, &polyRef, closestPoint);
+    result = _navMeshQuery->findNearestPoly(point, extents, &_filter, &polyRef, closestPoint);
     if (DT_SUCCESS == result && polyRef != INVALID_POLYREF)
     {
-        *Distance = dtVdist(closestPoint, Point);
+        *distance = dtVdist(closestPoint, point);
         return polyRef;
     }
 
