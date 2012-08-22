@@ -477,6 +477,37 @@ void Unit::GetRandomContactPoint(const Unit* obj, float &x, float &y, float &z, 
         , GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
 }
 
+void Unit::GetRandomValidContactPoint(const Unit* obj, float &x, float &y, float &z, float distance2d) const
+{
+    float combat_reach = GetCombatReach();
+    if (combat_reach < 0.1f) // sometimes bugged for players
+        combat_reach = DEFAULT_COMBAT_REACH;
+
+    uint32 attacker_number = getAttackers().size();
+    if (attacker_number > 0)
+        --attacker_number;
+    bool isValid=false;
+    int i=1;
+    float objz=GetPositionZ();
+    while (!isValid && i <= 10 )
+    {
+        GetNearPoint(obj, x, y, z, obj->GetCombatReach(), distance2d
+            , GetAngle(obj) + (attacker_number ? (static_cast<float>(M_PI/2) - static_cast<float>(M_PI) * (float)rand_norm()) * float(attacker_number) / combat_reach * 0.3f : 0));
+        UpdateGroundPositionZ(x,y,z);
+        if (z > (objz - 1) && (objz + 1) > z && IsWithinLOS(x, y, z))
+           isValid = true;
+        else
+            ++i;
+    }
+    if (!isValid)
+    {
+        x=GetPositionX();
+        y=GetPositionY();
+        z=GetPositionZ();
+    }
+}
+
+
 void Unit::UpdateInterruptMask()
 {
     m_interruptMask = 0;
