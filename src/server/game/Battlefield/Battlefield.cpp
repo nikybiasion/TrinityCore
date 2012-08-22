@@ -263,7 +263,7 @@ void Battlefield::InvitePlayerToWar(Player* player)
     {
         if (m_PlayersWillBeKick[player->GetTeamId()].count(player->GetGUID()) == 0)
             m_PlayersWillBeKick[player->GetTeamId()][player->GetGUID()] = time(NULL) + 10;
-            return;
+        return;
     }
 
     // Check if player is not already in war
@@ -563,7 +563,7 @@ bool Battlefield::AddOrSetPlayerToCorrectBfGroup(Player* player)
     else if (group->IsMember(player->GetGUID()))
     {
         uint8 subgroup = group->GetMemberGroup(player->GetGUID());
-        player->SetBattlegroundRaid(group, subgroup);
+        player->SetBattlegroundOrBattlefieldRaid(group, subgroup);
     }
     else
         group->AddMember(player);
