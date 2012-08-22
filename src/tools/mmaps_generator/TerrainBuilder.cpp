@@ -158,10 +158,13 @@ namespace MMAP
                 fread(V8, sizeof(float), V8_SIZE_SQ, mapFile);
             }
 
-            // hole data
-            memset(holes, 0, fheader.holesSize);
-            fseek(mapFile, fheader.holesOffset, SEEK_SET);
-            fread(holes, fheader.holesSize, 1, mapFile);
+            if (fheader.holesSize != 0)
+            {
+                // hole data
+                memset(holes, 0, fheader.holesSize);
+                fseek(mapFile, fheader.holesOffset, SEEK_SET);
+                fread(holes, fheader.holesSize, 1, mapFile);
+            }
 
             int count = meshData.solidVerts.size() / 3;
             float xoffset = (float(tileX)-32)*GRID_SIZE;
@@ -379,7 +382,7 @@ namespace MMAP
                 }
 
                 // if there is a hole here, don't use the terrain
-                if (useTerrain)
+                if (useTerrain && fheader.holesSize != 0)
                     useTerrain = !isHole(i, holes);
 
                 // we use only one terrain kind per quad - pick higher one
@@ -767,25 +770,23 @@ namespace MMAP
         int* t = tris.getCArray();
         float* v = verts.getCArray();
 
-        // collect all the vertex indices from triangle
+        G3D::Array<float> cleanVerts;
+        int index, count = 0;
         for (int i = 0; i < tris.size(); ++i)
         {
             if (vertMap.find(t[i]) != vertMap.end())
                 continue;
+            std::pair<int, int> val;
+            val.first = t[i];
 
-            vertMap.insert(std::pair<int, int>(t[i], 0));
-        }
+            index = val.first;
+            val.second = count;
 
-        // collect the vertices
-        G3D::Array<float> cleanVerts;
-        int index, count = 0;
-        for (map<int, int>::iterator it = vertMap.begin(); it != vertMap.end(); ++it)
-        {
-            index = (*it).first;
-            (*it).second = count;
-            cleanVerts.append(v[index*3], v[index*3+1], v[index*3+2]);
+            vertMap.insert(val);
+            cleanVerts.append(v[index*3], v[index*3 + 1], v[index*3 + 2]);
             count++;
         }
+
         verts.fastClear();
         verts.append(cleanVerts);
         cleanVerts.clear();
