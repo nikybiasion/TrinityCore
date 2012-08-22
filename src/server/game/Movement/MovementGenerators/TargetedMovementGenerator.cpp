@@ -214,7 +214,7 @@ bool TargetedMovementGeneratorMedium<T,D>::Update(T &owner, const uint32 & time_
         else
             _targetSearchingTimer = 0;
 
-        if (targetMoved || !owner.IsWithinLOSInMap(owner.getVictim()))
+        if (targetMoved)
             SetTargetLocation(owner);
     }
 
