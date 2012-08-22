@@ -255,6 +255,7 @@ namespace MMAP
 
         // build navmesh tile
         buildMoveMapTile(mapId, tileX, tileY, data, bmin, bmax, navMesh);
+        dtFreeNavMesh(navMesh);
         fclose(file);
     }
 
