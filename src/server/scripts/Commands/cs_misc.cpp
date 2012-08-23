@@ -2033,11 +2033,8 @@ public:
     Without this function 3rd party scripting library will get linking errors (unresolved external)
     when attempting to use the PointMovementGenerator
     */
-    static bool HandleComeToMeCommand(ChatHandler* handler, char const* args)
+    static bool HandleComeToMeCommand(ChatHandler* handler, char const* /*args*/)
     {
-        char const* newFlagStr = strtok((char*)args, " ");
-        if (!newFlagStr)
-            return false;
 
         Creature* caster = handler->getSelectedCreature();
         if (!caster)
